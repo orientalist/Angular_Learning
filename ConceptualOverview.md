@@ -1,5 +1,6 @@
 # 基本概念 
 [本篇網址](https://docs.angularjs.org/guide/concepts)
+
 ![Principle](./principleAng.png)
 ## 計算器例子
 ```html
@@ -23,7 +24,7 @@
 - `{{expression|filter}}`:當compiler遇到此類`markup`,會運算expression並返回值(語法類似javascript),如上例即會在`scope`中取出`ng-model='qty'`與`ng-model='cost'`的值相乘,並照`|`後方的格式輸出(此例為貨幣)
 ***
 ## `Controller`
-- html頁面
+- template
 ```html
 <div ng-app='invoice1' ng-controller='InvoiceController as invoice'>
     <b>Invoice:</b>
@@ -78,7 +79,7 @@ angular.module('invoice1',[])
 ***
 ## Move business logic from controller to `services`
 - 當程式碼增加時,將`business logic`從`controller`分離至`services`是洽當的作法,如此一來,該business logic則能夠重複使用
-- html
+- template
 ```html
 <div ng-app='invoice2' ng-controller='InvoiceController as invoice'>
     <b>Invoice:</b>
@@ -147,7 +148,7 @@ angular.module('invoice1',[])
 ![services](https://docs.angularjs.org/img/guide/concepts-module-service.png)
 ***
 ## 從遠端取得資料
-- html
+- template
 ```html
 <div ng-app='invoice3' ng-controller='InvoiceController as invoice'>
     <b>Invoice:</b>

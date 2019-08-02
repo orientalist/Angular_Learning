@@ -1,5 +1,5 @@
 # 基本概念 
-[本篇網址](https://docs.angularjs.org/guide/concepts)
+> [本篇網址](https://docs.angularjs.org/guide/concepts)
 
 ![Principle](./principleAng.png)
 ## 計算器例子

@@ -107,3 +107,68 @@
         };
     })
 </script>
+<!--Accessing the backend-->
+<!--Template-->
+<div ng-app='invoice3' ng-controller='InvoiceController as invoice'>
+    <b>Invoice:</b>
+    <div>
+        Quantity:<input type="number" min='0' ng-model='invoice.qty' required>
+    </div>
+    <div>
+        Cost:<input type='number' min="0" ng-model='invoice.cost' required>
+        <select ng-model='invoice.inCurr'>
+            <option ng-repeat='c in invoice.currencies'>{{c}}</option>
+        </select>
+    </div>
+    <div>
+        <b>Total:</b>
+        <span ng-repeat='c in invoice.currencies'>
+            {{invoice.total(c)|currency:c}}
+        </span><br>
+        <button class="btn" ng-click='invoice.pay()'>Pay</button>
+    </div>
+</div>
+<!--Controller-->
+<script>
+    angular.module('invoice3',['finance3'])
+    .controller('InvoiceController',['currencyConverter',function InvoiceController(currencyConverter){
+        this.qty=1;
+        this.cost=2;
+        this.inCurr='EUR';
+        this.currencies=currencyConverter.currencies;
+
+        this.total=function(outCurr){
+            return currencyConverter.convert(this.qty*this.cost,this.inCrr,outCurr)
+        }
+        this.pay=function pay(){
+            window.alert('Thanks!');
+        }
+    }])
+</script>
+<!--Services-->
+<script>
+    angular.module('finance3',[])
+    .factory('currencyConverter',['$http',function($http){
+        var currencies=['USD','EUR','CNY']
+        var usdToForeignRates={};
+
+        var convert=function(amount,inCurr,outCurr){
+            return amount*usdToForeignRates[outCurr]/usdToForeignRates[inCurr];
+        };
+
+        var refresh=function(){
+            var url=`https://api.exchangeratesapi.io/latest?base=USD&symbols=${currencies.join(',')}`;
+            return $http.get(url).then(function(response){
+                usdToForeignRates=response.data.rates;
+                usdToForeignRates['USD']=1;
+            });
+        };
+
+        refresh();
+
+        return{
+            currencies:currencies,
+            convert:convert
+        };
+    }])
+</script>

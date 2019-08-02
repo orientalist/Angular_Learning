@@ -78,7 +78,7 @@ angular.module('invoice1',[])
 ***
 ## Move business logic from controller to `services`
 - 當程式碼增加時,將`business logic`從`controller`分離至`services`是洽當的作法,如此一來,該business logic則能夠重複使用
-html
+- html
 ```html
 <div ng-app='invoice2' ng-controller='InvoiceController as invoice'>
     <b>Invoice:</b>
@@ -98,7 +98,7 @@ html
     <button class="btn" ng-click='invoice.pay()'>Pay</button>
 </div>
 ```
-controller(invoice2.js)
+- controller(invoice2.js)
 ```js
  angular.module('invoice2',['finance2'])
     .controller('InvoiceController',['currencyConverter',function InvoiceController(currencyConverter){
@@ -115,7 +115,7 @@ controller(invoice2.js)
         }
     }])
 ```
-services(finance2.js)
+- services(finance2.js)
 ```js
  angular.module('finance2',[])
     .factory('currencyConverter',function(){
@@ -145,3 +145,71 @@ services(finance2.js)
 - .controller()內第二參數為一陣列,此陣列第一元素為相依Service的名稱,第二元素為controller建構函式
 
 ![services](https://docs.angularjs.org/img/guide/concepts-module-service.png)
+***
+## 從遠端取得資料
+- html
+```html
+<div ng-app='invoice3' ng-controller='InvoiceController as invoice'>
+    <b>Invoice:</b>
+    <div>
+        Quantity:<input type="number" min='0' ng-model='invoice.qty' required>
+    </div>
+    <div>
+        Cost:<input type='number' min="0" ng-model='invoice.cost' required>
+        <select ng-model='invoice.inCurr'>
+            <option ng-repeat='c in invoice.currencies'>{{c}}</option>
+        </select>
+    </div>
+    <div>
+        <b>Total:</b>
+        <span ng-repeat='c in invoice.currencies'>
+            {{invoice.total(c)|currency:c}}
+        </span><br>
+        <button class="btn" ng-click='invoice.pay()'>Pay</button>
+    </div>
+</div>
+```
+- controller
+```js
+angular.module('invoice3',['finance3'])
+    .controller('InvoiceController',['currencyConverter',function InvoiceController(currencyConverter){
+        this.qty=1;
+        this.cost=2;
+        this.inCurr='EUR';
+        this.currencies=currencyConverter.currencies;
+
+        this.total=function(outCurr){
+            return currencyConverter.convert(this.qty*this.cost,this.inCrr,outCurr)
+        }
+        this.pay=function pay(){
+            window.alert('Thanks!');
+        }
+    }])
+```
+- service
+```js
+ angular.module('finance3',[])
+    .factory('currencyConverter',['$http',function($http){
+        var currencies=['USD','EUR','CNY']
+        var usdToForeignRates={};
+
+        var convert=function(amount,inCurr,outCurr){
+            return amount*usdToForeignRates[outCurr]/usdToForeignRates[inCurr];
+        };
+
+        var refresh=function(){
+            var url=`https://api.exchangeratesapi.io/latest?base=USD&symbols=${currencies.join(',')}`;
+            return $http.get(url).then(function(response){
+                usdToForeignRates=response.data.rates;
+                usdToForeignRates['USD']=1;
+            });
+        };
+
+        refresh();
+
+        return{
+            currencies:currencies,
+            convert:convert
+        };
+    }])
+```

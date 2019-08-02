@@ -1,0 +1,109 @@
+<!--Basic example-->
+<div ng-app ng-init='qty=1;cost=2'>
+    <b>Invoice:</b>
+    <div>
+        Quantity:<input type="number" min='0' ng-model='qty'>
+    </div>
+    <div>
+        Cost:<input type="number" min="0" ng-model='cost'>
+    </div>
+    <div>
+        <b>Total:</b>{{ qty*cost|currency }}
+    </div>
+</div>
+<!--Controller example-->
+<div ng-app='invoice1' ng-controller='InvoiceController as invoice'>
+    <b>Invoice:</b>
+    <div>
+        Quantity:<input type="number" min="0" ng-model='invoice.qty' required>
+    </div>
+    <div>
+        Cost:<input type="number" min="0" ng-model='invoice.cost' required>
+        <select ng-model='invoice.inCurr'>
+            <option ng-repeat='c in invoice.currencies'>{{ c }}</option>
+        </select>
+    </div>
+    <div>
+        <b>Total:</b>
+        <span ng-repeat='c in invoice.currencies'>
+            {{ invoice.total(c)|currency:c }}
+        </span>
+        <button class="btn" ng-click='invoice.pay()'>Pay</button>
+    </div>
+</div>
+<script>
+    angular.module('invoice1',[])
+    .controller('InvoiceController',function InvoiceController(){
+        this.qty=1;
+        this.cost=2;
+        this.inCrr='EUR';
+        this.currencies=['USD','EUR','CNY'];
+        this.usdToForeignRates={
+            USD:1,
+            EUR:0.74,
+            CNY:6.09
+        };
+        this.total=function total(outCurr){
+            return this.convertCurrenct(this.qty*this.cost,this.inCurr,outCurr)
+        }
+        this.convertCurrenct=function convertCurrenct(amount,inCurr,outCurr){
+            return amount*this.usdToForeignRates[outCurr]/this.usdToForeignRates[inCurr]
+        }
+        this.pay=function pay(){
+            window.alert('Thanks!')
+        }
+    })
+</script>
+<!--Independent business logic-Services-->
+<div ng-app='invoice2' ng-controller='InvoiceController as invoice'>
+    <b>Invoice:</b>
+    <div>
+        Quantity:<input type="number" min='0' ng-model='invoice.qty' required>
+    </div>
+    <div>
+        Cost:<input type="number" min="0" ng-model='invoice.cost' required>
+        <select ng-model='c in invoice.currencies'>
+            <option ng-repeat='c in invoice.currencies'>{{ c }}</option>
+        </select>
+    </div>
+    <b>Total:</b>
+    <span ng-repeat='c in invoice.currencies'>
+        {{invoice.total(c) | currency:c}}
+    </span><br>
+    <button class="btn" ng-click='invoice.pay()'>Pay</button>
+</div>
+<script>
+    angular.module('invoice2',['finance2'])
+    .controller('InvoiceController',['currencyConverter',function InvoiceController(currencyConverter){
+        this.qty=1;
+        this.cost=2;
+        this.inCurr='EUR';
+        this.currencies=currencyConverter.currencies;
+
+        this.total=function total(outCurr){
+            return currencyConverter.convert(this.qty*this.cost,this.inCurr,outCurr);
+        }
+        this.pay=function pay(){
+            window.alert('Thanks!')
+        }
+    }])
+</script>
+<script>
+    angular.module('finance2',[])
+    .factory('currencyConverter',function(){
+        var currencies=['USD','EUR','CNY'];
+        var usdToForeignRates={
+            USD:1,
+            EUR:0.74,
+            CNY:6.09
+        }
+        var convert=function(amount,inCurr,outCurr){
+            return amount*usdToForeignRates[outCurr]/usdToForeignRates[inCurr];
+        }
+
+        return {
+            currencies:currencies,
+            convert:convert
+        };
+    })
+</script>

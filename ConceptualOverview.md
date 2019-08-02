@@ -73,6 +73,7 @@ angular.module('invoice1',[])
 - 新增了js檔用以產生controller實體,用以處理變數以及方法,提供給`expressions`與`directives`
 - `ng-controller`:此directive告訴AngularJS-`InvoiceController`會提供給此element與其子,`InvoiceController as invoice`告訴AngularJS會將此`controller`儲存至變數`invoice`於此`scope`
 - 輸出與改變model數值的方法改透過前餟詞`invoice.`,透過`ng-repeat`迴圈輸出,`{{invoice.total(...)}}`則能呼叫controller方法並輸出結果
+
 ![controller](https://docs.angularjs.org/img/guide/concepts-databinding2.png)
 ***
 ## Move business logic from controller to `services`

@@ -1,0 +1,31 @@
+<!--Template-->
+<div ng-controller='MyController'>
+    Your name:
+    <input type="text" ng-model='username'>
+    <button ng-click='sayHello()''>great</button>
+    <hr>
+    {{greeting}}
+</div>
+<!--Controller-->
+<script>
+    angular.module('scopeExample',[]).controller('MyController',['$scope',function($scope){
+        $scope,username='World!';
+
+        $scope.sayHello=function(){
+            $scope.greeting=`Hello ${$scope.username}!`
+        }
+    }])
+</script>
+<!--Unit test-->
+<script>
+    it('should say hello',function(){
+        var scopeMonk={};
+        var cntl=new MyController(scopeMonk);
+
+        expect(scopeMonk.username).toEqual('World');
+
+        scopeMonk.username='angular';
+        scopeMonk.sayHello();
+        expect(scopeMonk.greeting).toEqual('Hello angular!');
+    })
+</script>

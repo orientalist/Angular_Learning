@@ -87,7 +87,7 @@ function($route,batchLog,$rootScope){
 4. factory function參數與相依陣列名稱順序須一致
 ***
 ## 透過`$provide`註冊Services
-可以透過`$provide`於`module`的`config function`註冊serivce
+- 可以透過`$provide`於`module`的`config function`註冊serivce
 ```js
 angular.module('myModule',[]).config(['$provide',function($provide){
     $provide.factory('serviceId',function(){
@@ -96,5 +96,48 @@ angular.module('myModule',[]).config(['$provide',function($provide){
         return shinyNewServiceInstance;
     })
 }])
+```
+- Unittest-修改先前Services案例
+```js
+var mock,notify;
+beforeEach(module('myServiceModule'));
+beforeEach(function(){
+    mock={alert:jasmine.createSpy()};
+
+    module(function($provide){
+        $provide.value('$window',mock);
+    });
+
+    inject(function($injector){
+       notify=$injector.get('notify')
+    });
+})
+
+it('should not alert first two notifications',function(){
+    notify('one');
+    notify('two');
+
+    expect(mock.alert).not.toHaveBeenCalled();
+})
+
+it('should alert all after third notification',function(){
+    notify('one');
+    notify('two');
+    notify('three');
+
+    expect(mock.alert).toHaveBeenCalledWith('one\two\three');
+});
+
+it('should clear messages after alert',function(){
+    notify('one');
+    notify('two');
+    notify('three');
+    notify('more');
+    notify('two');
+    notify('three');
+
+    expert(mock.alert.calls.count()).toEqual(2);
+    expert(mock.alert.calls.mostRecent().args).toEqual(['more\ntwo\nthree']);
+});
 ```
 ***

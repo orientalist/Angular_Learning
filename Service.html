@@ -1,0 +1,127 @@
+<!--Service-->
+<div id='simple' ng-controller='MyController'>
+    <p>Let's try this simple notify service,injected into the controller...</p>
+    <input ng-init='message="test"' ng-model='message'>
+    <button ng-click='callNotify(message);'>NOTIFY</button>
+    <p>(you have to click 3 times to see an alert)</p>
+</div>
+<!--Controller-->
+<script>
+    angular.module('myServiceModule',[]).
+    controller('MyController',['$scope','notify',function($scope,nofity){
+        $scope.callNotify=function(msg){
+            notify(msg)
+        };
+    }]).
+    factory('notify',['$window',function(win){
+        var msgs=[];
+        return function(msg){
+            msgs.push(msg);
+            if(msgs.length===3){
+                win.alert(msgs.join('\n'));
+                msgs=[];
+            }
+        }
+    }])
+</script>
+<!--UnitTest-->
+<script>
+    it('should test service',function(){
+        expect(element(by.id('simple')).element(by.model('message')).getAttribute('value'))
+        .toEqual('test')
+    })
+</script>
+<!--Registing Services-->
+<script>
+    var myModule=angular.module('myModule',[]);
+    myModule.factory('serviceId',function(){
+        var shinyNewServiceInstance;
+        //factory function body that constructs shinyNewServiceInstance
+        return shinyNewServiceInstance;
+    });
+</script>
+<!--Dependencies-->
+<script>
+    var batchModule=angular.module('batchModule',[]);
+
+    batchModule.factory('batchLog',['$interval','$log',function($interval,$log){
+        var messageQueue=[];
+
+        function log(){
+            if(messageQueue.length){
+                $log.log('batchLog message:',messageQueue);
+                messageQueue=[];
+            }
+        }
+
+        $interval(log,50000);
+
+        return function(message){
+            messageQueue.push(message);
+        }
+    }])
+
+    batchModule.factory('routeTemplateMonitor',['$route','batchLog','$rootScope',
+    function($route,batchLog,$rootScope){
+        return{
+            startMonitoring:function(){
+                $rootScope.$on('$routeChangeSuccess',function(){
+                    batchLog($route.current?$route.current.template:null);
+                })
+            }
+        }
+    }])
+</script>
+<!--Reginstering services via $provide-->
+<script>
+    angular.module('myModule',[]).config(['$provide',function($provide){
+        $provide.factory('serviceId',function(){
+            var shinyNewServiceInstance;
+            //factory function body that constructs shinyNewServiceInstance
+            return shinyNewServiceInstance;
+        })
+    }])
+</script>
+<!--Unittest-->
+<script>
+    var mock,notify;
+    beforeEach(module('myServiceModule'));
+    beforeEach(function(){
+        mock={alert:jasmine.createSpy()};
+
+        module(function($provide){
+            $provide.value('$window',mock);
+        });
+
+        inject(function($injector){
+            notify=$injector.get('notify')
+        });
+    })
+
+    it('should not alert first two notifications',function(){
+        notify('one');
+        notify('two');
+
+        expect(mock.alert).not.toHaveBeenCalled();
+    })
+
+    it('should alert all after third notification',function(){
+        notify('one');
+        notify('two');
+        notify('three');
+
+        expect(mock.alert).toHaveBeenCalledWith('one\two\three');
+    });
+
+    it('should clear messages after alert',function(){
+        notify('one');
+        notify('two');
+        notify('three');
+        notify('more');
+        notify('two');
+        notify('three');
+
+        expert(mock.alert.calls.count()).toEqual(2);
+        expert(mock.alert.calls.mostRecent().args).toEqual(['more\ntwo\nthree']);
+    });
+</script>

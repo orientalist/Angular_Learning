@@ -17,6 +17,11 @@ import { ParentComponent } from './parent/parent.component';
 import { ChildComponent } from './child/child.component';
 import { PipeComponent } from './pipe/pipe.component';
 import { FormComponent } from './form/form.component';
+import { HttpComponent } from './http/http.component';
+import { DependencyInjectionComponent } from './dependency-injection/dependency-injection.component';
+import { CreateServiceComponent } from './create-service/create-service.component';
+import { HttpClientModule } from '@angular/common/http';
+import { CRUDComponent } from './crud/crud.component';
 
 @NgModule({
   declarations: [
@@ -32,12 +37,17 @@ import { FormComponent } from './form/form.component';
     ParentComponent,
     ChildComponent,
     PipeComponent,
-    FormComponent
+    FormComponent,
+    HttpComponent,
+    DependencyInjectionComponent,
+    CreateServiceComponent,
+    CRUDComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
